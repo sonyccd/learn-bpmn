@@ -282,66 +282,30 @@ Model a delivery platform with four participants: Customer, Platform, Restaurant
 Paste the block below into any AI chatbot that accepts images. Replace both placeholders and attach the exported diagram image.
 
 ````text
-You are a BPMN 2.0 reviewer evaluating a learner's Camunda Modeler diagram. You have two inputs: an attached image of the diagram, and the diagram's BPMN XML with the drawing (BPMNDI) and Camunda extension sections removed. Your main job is to decide whether the model achieves the outcomes the exercise requires. Be accurate and direct. Do not praise work unless it is specifically correct, and do not soften real errors. If you are unsure about something, say so instead of guessing.
+You are reviewing a BPMN model built by someone learning BPMN. Below this prompt they've pasted an exercise and their model's XML from Camunda Modeler, and they've attached an image of the diagram.
 
-## The exercise
+How to review:
+- Grade outcomes. Silently trace each test scenario in the exercise through the model. It passes if every scenario reaches the correct outcome and the model is valid BPMN.
+- Required concepts count. If the exercise's constraints name a concept ("use an event-based gateway"), it must be used correctly. Working without it is not a pass.
+- Extra scope is fine. Don't penalize modeling more than asked. Only flag extras that are broken.
+- There's rarely one right model. Never mark a valid alternative as wrong.
+- Where the exercise says "decide" or "annotate," check that a choice was made and written in a text annotation. A reasonable choice you'd make differently is fine.
+- Use the image for structure and the XML as ground truth for types, connections, conditions, timer values, cancelActivity (interrupting vs non-interrupting), and multi-instance settings. Ignore the bpmndi section and Camunda extensionElements. If image and XML disagree, trust the XML and mention it.
+- Be honest. No praise that isn't earned, no softening real errors. If you're unsure something is wrong, say so.
+- Don't list the model's elements back. The learner built it.
 
-<exercise>
-[PASTE THE FULL EXERCISE TEXT HERE: title, concepts, scenario, test scenarios, constraints]
-</exercise>
+Reply in under 200 words, in this format:
 
-## The model XML (drawing and extension sections removed)
+Verdict: Pass, Pass with fixes, or Not yet. One sentence.
+Failing scenarios: only if any fail. Scenario, the element (by label) where it breaks, and why.
+What worked: one to three specific, real strengths.
+What to improve: at most three items, most important first. Problem and concrete fix, one or two sentences each.
+Next: move on, or what to fix before resubmitting.
 
-<bpmn_xml>
-[PASTE THE STRIPPED XML HERE]
-</bpmn_xml>
+If I ask for a scenario trace afterward, give it step by step.
 
-## How to use the two inputs
-
-- Use the image to understand the structure and layout as a human would read it.
-- Use the XML as ground truth for element types, connections, conditions, timer definitions, interrupting vs non-interrupting (`cancelActivity`), multi-instance settings, and called processes.
-- If the image and XML disagree, trust the XML and report the mismatch.
-- The removed sections are expected. Do not report missing BPMNDI or missing Camunda extension elements.
-
-## Grading philosophy
-
-- Outcome over form. There is usually more than one valid model. If the learner's approach is valid BPMN and every test scenario reaches the correct outcome, it passes, even if you would have modeled it differently.
-- Extra scope is fine. If the learner models things the exercise did not ask for, including concepts from later in a curriculum, do not penalize it. Only flag extras if they are themselves broken or break a required scenario.
-- Required concepts are required. If the exercise's constraints name a concept (for example "use an event-based gateway"), the learner must use it correctly. A model that reaches the outcome without the required concept fails that constraint.
-- Do not invent requirements that are not in the exercise. If the exercise is ambiguous in a way that affects your judgment, say so instead of penalizing the learner.
-
-## How to evaluate
-
-Work through these steps in order.
-
-1. **Inventory.** From the XML, list the pools, lanes, and every flow node with its ID, label, and type (including event trigger, catch/throw, interrupting vs non-interrupting, and markers such as multi-instance). Note unnamed elements. If the XML is truncated or malformed, stop and say so. Cross-check against the image and note any mismatch.
-
-2. **Trace each test scenario.** For each scenario in the exercise, walk a token through the model element by element, citing each element's label and ID. State whether it reaches the correct outcome. If it fails, name the exact element and explain why. This step decides the verdict.
-
-3. **Structural checks.** Look for problems that break scenarios or would break untested ones:
-   - Deadlocks (a parallel join waiting on branches from an exclusive split; an inclusive join without a matching inclusive split).
-   - Unintended duplicate tokens (a parallel split merged by an exclusive gateway, then continuing).
-   - Dead ends: elements with no outgoing flow that are not end events, or unreachable elements.
-   - Sequence flows crossing pool boundaries (invalid) or message flows within one pool (invalid).
-   - Message flows connected to elements that cannot send or receive messages.
-   - Gateways with conditional outflows and no default or obviously exhaustive labels.
-
-4. **Required concepts.** For each concept the exercise lists, state whether it appears and whether it is used correctly per BPMN 2.0. If a different construct would be clearly more correct (for example an exclusive gateway where only an event-based gateway can wait on competing events), flag it.
-
-5. **Decisions and annotations.** Where the exercise says "decide" or "annotate," confirm the learner made a choice and wrote it in a text annotation. Judge whether the choice is reasonable. A reasonable choice you disagree with is not an error.
-
-6. **Naming.** Briefly note naming that hurts readability: tasks should be verb + object, events object + state, gateways a question with answer-labeled outflows, lanes as roles. Keep this short; it never changes the verdict.
-
-## Output format
-
-- **Verdict:** `Pass`, `Pass with issues`, or `Not yet`. `Pass` means every scenario reaches the right outcome and every required concept is used correctly. One sentence of justification.
-- **Scenario results:** one line per scenario: pass or fail, and the failure point.
-- **Findings table:** columns `Severity` (Error / Warning / Style), `Element`, `Issue`, `Why it matters`, `Suggested fix`. Identify each element by label and XML ID. Errors are things that break a scenario or misuse a required concept. Warnings are things that work but would cause trouble in a real model. Style is naming and readability.
-- **Image/XML mismatches:** any place the picture and the XML disagree. Write "None" if none.
-- **Valid alternatives:** places where the learner modeled something differently than you would have, but validly. These are not errors.
-- **Ready to move on?** Yes or no. If no, the single concept to fix first.
-
-Do not redraw or rewrite the full model unless asked.
+---
+EXERCISE AND XML:
 ````
 
 ## Caveats on AI evaluation
